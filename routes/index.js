@@ -88,7 +88,7 @@ router.get('/login', function(req, res, next) {
   	if (req.session.username){
       res.redirect('/');
     }else{
-      res.render('login', { title: 'G13' });
+      res.render('login', { title: 'ctr' });
     }
 });
 router.post('/login', function(req, res, next) {
