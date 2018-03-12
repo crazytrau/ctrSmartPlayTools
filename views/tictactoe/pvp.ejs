@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <h1>Hello, <%=username%>!</h1>
+    <div class="container">
+
+      <div class="ctrGrid">
+        <div class="row">
+          <button class="rounded" style="width: 75px; height: 75px;" id="0"></button>
+          <button class="rounded" style="width: 75px; height: 75px;" id="1"></button>
+          <button class="rounded" style="width: 75px; height: 75px;" id="2"></button>
+        </div>
+        <div class="row">
+          <button class="rounded" style="width: 75px; height: 75px;" id="3"></button>
+          <button class="rounded" style="width: 75px; height: 75px;" id="4"></button>
+          <button class="rounded" style="width: 75px; height: 75px;" id="5"></button>
+        </div>
+        <div class="row">
+          <button class="rounded" style="width: 75px; height: 75px;" id="6"></button>
+          <button class="rounded" style="width: 75px; height: 75px;" id="7"></button>
+          <button class="rounded" style="width: 75px; height: 75px;" id="8"></button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(function () {
+        console.log('asdas')
+        $(".rounded").attr("disabled", true);
+        var arr = [null,null,null,null,null,null,null,null,null];
+        var idRoom = "asdasd"
+        var socket = io();
+        socket.on('connect', function() {
+         // Connected, let's sign-up for to receive messages for this room
+         socket.emit('room', idRoom);
+         $(".rounded").attr("disabled", false);
+        });
+
+        $('.rounded').one( "click",function(e){
+          if (arr[this.id] == null){
+            $(".rounded").attr("disabled", true);
+            $(this).text('X')
+            //disable div
+            e.preventDefault();
+            //send location
+            arr[this.id] = 1;
+            if (  arr[0]==arr[1] && arr[1]==arr[2] && arr[1]!=null
+              || arr[3]==arr[4] && arr[4]==arr[5] && arr[4]!=null
+              ||  arr[6]==arr[7] && arr[7]==arr[8] && arr[7]!=null
+              ||  arr[0]==arr[3] && arr[3]==arr[6] && arr[3]!=null
+              ||  arr[1]==arr[4] && arr[4]==arr[7] && arr[4]!=null
+              ||  arr[2]==arr[5] && arr[5]==arr[8] && arr[5]!=null
+              ||  arr[0]==arr[4] && arr[4]==arr[8] && arr[4]!=null
+              ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=null)
+              console.log('WIN')
+            socket.emit('message', {
+              loc:this.id,
+              _id:idRoom
+            });
+          }
+        });
+
+        socket.on('message', function(msg){
+          $(".rounded").attr("disabled", false);
+          $(`#${msg.loc}`).text('O')
+          arr[msg.loc]=0
+        });
+
+      });
+    </script>
+  </body>
+</html>

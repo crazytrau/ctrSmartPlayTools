@@ -21,69 +21,6 @@ router.get('/', function(req, res, next) {
   }
 });
 
-router.get('/addRoom', function(req, res, next) {
-  if (req.session.username){
-    var nUserName = req.session.username;
-    var newRoom = new Room({
-       users:[nUserName]
-    });
-
-    Room.create(newRoom, function (err, small) {
-      if (err) return handleError(err);
-      console.log("create room successfully"  + small);
-      res.redirect("/");
-    });
-  }else {
-    res.redirect('/login');
-  }
-});
-
-router.get('/room/:room', function(req, res, next) {
-  var room = req.params.room;
-  if (req.session.username){
-    Room.findOne({_id: req.params.room}, function(err, result) {
-  	  if (err) res.status(500).send(err);
-        var haveUser = false;
-        for (var i=0;i<result.users.length;++i){
-          console.log(result.users[i]+"==========>"+req.session.username);
-            if (result.users[i] == req.session.username){
-              haveUser = true;
-            }
-        }
-      if(haveUser == false){
-        Room.findOneAndUpdate({_id: result._id},
-            {$push: {"users": req.session.username}},
-            {safe: true, upsert: true},
-            function(err, model) {
-                console.log(err);
-            }
-        );
-      }
-      var message = result==null?{}:result.message;
-      res.render('room', {
-        title: 'room',
-        username:req.session.username,
-        _id:req.params.room,
-        message:message
-      });
-	   });
-  }else {
-    res.redirect('/login');
-  }
-});
-
-router.get('/add/:username/:password', function(req, res, next) {
-  console.log("add");
-  var newAdmin = new Admin({
-     username: req.params.username,
-     password: req.params.password
-  });
-
-  Admin.create(newAdmin, function (err, small) {
-  if (err) return handleError(err);
-   console.log("Post saved successfully");
-  });
-});
 router.get('/login', function(req, res, next) {
   	if (req.session.username){
       res.redirect('/');
