@@ -39,16 +39,9 @@ io.on('connection', function(socket){
   });
 
   socket.on('message', function(msg){
+    console.log('message',msg);
     socket.broadcast.to(msg._id).emit('message', msg);
-    // console.log(msg._id+"message to server " + msg.mess);
-    // var mess ={username: msg.name, message:msg.mess};
-    // Room.findOneAndUpdate({_id: msg._id},
-    //     {$push: {"message":mess}},
-    //     {safe: true, upsert: true},
-    //     function(err, model) {
-    //         console.log(err);
-    //     }
-    // );
+    io.sockets.emit('esp', msg);
   });
 });
 
