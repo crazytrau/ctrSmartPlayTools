@@ -1,6 +1,11 @@
 var X1X1 = 6961; // type of equip just 3x3 grid
+
+var ARR_NULL_STATE = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+var ARR_LED = [0,1,2,3,4,5,6,7,8];
+var TURN_ON = 1;
+var TURN_OFF = 0;
 "use strict";
-class player{
+class PLAYER{
     constructor(playerId, type, devices) {
         this.playerId = playerId || 'player';
         // type of equip
@@ -18,11 +23,13 @@ class player{
     }
 }
 
-class game {
-    constructor(type, arr) {
-        this.name = 'game';
+class GAME {
+    constructor(type) {
+        this.name = 'game class';
         this.type = type;
-        this.players = {};
+        this.players = [];
+        this.maxPlayer=1;
+        this.minPlayer=1;
     }
     // send to 1 equip
     send2AEquip(iPlayer,iDevice, iLed, state){
@@ -30,42 +37,113 @@ class game {
                     "iLed":iLed,
                     "state":state}; 
         //update device
-        io.sockets.emit('send2AEquip', JSON.stringify(msg));
+        //io.sockets.emit('send2AEquip', JSON.stringify(msg));
     }
-    send2AllEquip(iPlayer,iDevice, arrLed, arrState){
+    sendAll2AEquip(iPlayer,iDevice, arrLed, arrState){
         var msg = { "deviceId":this.players[iPlayer].devices[iDevice], 
                     "arrLed":arrLed,
                     "arrState":arrState}; 
+        console.log(iPlayer, "sendAll2AEquip");
         //update device
-        io.sockets.emit('send2AllEquip', JSON.stringify(msg));
+        //io.sockets.emit('sendAll2AEquip', JSON.stringify(msg));
+    }
+    addPlayer(player){
+        if (player.type == this.type && this.players.length < this.maxPlayer){
+            // check already in player list
+            for (var iPlayer=0; iPlayer < this.players.length;++iPlayer){
+                if (player.playerId == this.players[iPlayer].playerId){
+                    return false;
+                }
+            }
+            this.players.push(player);
+            return true;
+        }
+        return false;
+    }
+    checkCanPlay(){
+        if (this.players.length >= this.minPlayer){
+            //turn off all led on devices of all player
+            for (var iPlayer=0;iPlayer<this.players.length;++iPlayer){
+                for (var iDevice=0;iDevice<this.players[iPlayer].devices.length;++iDevice){
+                    this.sendAll2AEquip(iPlayer, iDevice, ARR_LED, ARR_NULL_STATE);
+                }
+            }
+            return true;
+        }else{
+            return false;
+        }
+    }
+}
+class TICTACTOE extends GAME {
+    constructor(maxPlayer) {
+        super(X1X1);
+        this.name = 'tictactoe class';
+        this.grid = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+        this.maxPlayer = 2;
+        this.minPlayer = 2;
+        this.turn = 0;
     }
     
-    addPlayer(player){
-        if (player.type == this.type){
-            this.players.push(player);
-            return True;
+    checkWin(){
+        var arr = this.grid;
+        if (  arr[0]==arr[1] && arr[1]==arr[2] && arr[1]!=-1
+            || arr[3]==arr[4] && arr[4]==arr[5] && arr[4]!=-1
+            ||  arr[6]==arr[7] && arr[7]==arr[8] && arr[7]!=-1
+            ||  arr[0]==arr[3] && arr[3]==arr[6] && arr[3]!=-1
+            ||  arr[1]==arr[4] && arr[4]==arr[7] && arr[4]!=-1
+            ||  arr[2]==arr[5] && arr[5]==arr[8] && arr[5]!=-1
+            ||  arr[0]==arr[4] && arr[4]==arr[8] && arr[4]!=-1
+            ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=-1)
+            return true;
+        else{
+            return false;
         }
-        return False;
+    }
+
+    getIdPlayer(player){
+        for (var iPlayer=0;iPlayer<this.players.length;++iPlayer){
+            if (player.playerId == this.players[iPlayer].playerId){
+                return iPlayer;
+            }
+        }
+        return -1;
+    }
+    
+    move(iPlayer, iLoc){
+        if (iPlayer == this.turn){
+            this.grid[iLoc] = iPlayer
+            // send to devices
+            this.send2AEquip(iPlayer, this.players[iPlayer].devices[0],iLoc,TURN_ON);
+            this.turn = ++this.turn>1?0:1;
+        }
     }
 }
-class clickButton extends game {
-  constructor() {
-    super(X1X1, length);
-    this.name = 'Square';
-  }
 
-  get area() {
-    return this.height * this.width;
-  }
+// player1 = new PLAYER('user1');
+// player2 = new PLAYER('user2');
+// tictactoe = new TICTACTOE();
+// tictactoe.addPlayer(player1);
+// tictactoe.addPlayer(player2);
+// console.log('can play ? ' + tictactoe.checkCanPlay());
 
-  set area(value) {
-    this.area = value;
-  }
+// tictactoe.move(tictactoe.getIdPlayer(player1),0);
+// console.log(tictactoe.turn);
+// console.log('win ? ',tictactoe.checkWin())
 
-  asd(a){
-    console.log(a)
-  }
-}
+// tictactoe.move(tictactoe.getIdPlayer(player2),3);
+// console.log(tictactoe.turn);
+// console.log('win ? ',tictactoe.checkWin())
 
-player = new player('user1')
-console.log(player)
+// tictactoe.move(tictactoe.getIdPlayer(player1),1);
+// console.log(tictactoe.turn);
+// console.log('win ? ',tictactoe.checkWin())
+
+// tictactoe.move(tictactoe.getIdPlayer(player2),4);
+// console.log(tictactoe.turn);
+// console.log('win ? ',tictactoe.checkWin())
+
+// tictactoe.move(tictactoe.getIdPlayer(player1),2);
+// console.log(tictactoe.turn);
+// console.log('win ? ',tictactoe.checkWin())
+
+// console.log(tictactoe.grid);

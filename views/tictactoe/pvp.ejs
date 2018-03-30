@@ -44,7 +44,7 @@
       $(function () {
         console.log('asdas')
         $(".rounded").attr("disabled", true);
-        var arr = [null,null,null,null,null,null,null,null,null];
+        var arr = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
         var idRoom = "asdasd"
         var socket = io();
         socket.on('connect', function() {
@@ -54,21 +54,21 @@
         });
 
         $('.rounded').one( "click",function(e){
-          if (arr[this.id] == null){
+          if (arr[this.id] == -1){
             $(".rounded").attr("disabled", true);
             $(this).text('X')
             //disable div
             e.preventDefault();
             //send location
             arr[this.id] = 1;
-            if (  arr[0]==arr[1] && arr[1]==arr[2] && arr[1]!=null
-              || arr[3]==arr[4] && arr[4]==arr[5] && arr[4]!=null
-              ||  arr[6]==arr[7] && arr[7]==arr[8] && arr[7]!=null
-              ||  arr[0]==arr[3] && arr[3]==arr[6] && arr[3]!=null
-              ||  arr[1]==arr[4] && arr[4]==arr[7] && arr[4]!=null
-              ||  arr[2]==arr[5] && arr[5]==arr[8] && arr[5]!=null
-              ||  arr[0]==arr[4] && arr[4]==arr[8] && arr[4]!=null
-              ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=null)
+            if (  arr[0]==arr[1] && arr[1]==arr[2] && arr[1]!=-1
+              || arr[3]==arr[4] && arr[4]==arr[5] && arr[4]!=-1
+              ||  arr[6]==arr[7] && arr[7]==arr[8] && arr[7]!=-1
+              ||  arr[0]==arr[3] && arr[3]==arr[6] && arr[3]!=-1
+              ||  arr[1]==arr[4] && arr[4]==arr[7] && arr[4]!=-1
+              ||  arr[2]==arr[5] && arr[5]==arr[8] && arr[5]!=-1
+              ||  arr[0]==arr[4] && arr[4]==arr[8] && arr[4]!=-1
+              ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=-1)
               console.log('WIN')
             socket.emit('message', {
               loc:this.id,
