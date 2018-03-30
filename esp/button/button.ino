@@ -26,25 +26,19 @@ void setup() {
   //start serial connection
   Serial.begin(57600);
   //configure pin 2 as an input and enable the internal pull-up resistor
-  pinMode(D0, OUTPUT); /// 1->0 luon
-  pinMode(D1, OUTPUT); // 1
-  pinMode(D2, OUTPUT); // 1
-  pinMode(D3, INPUT_PULLUP); // 1->0->1
-  pinMode(D4, INPUT_PULLUP); // 1->0->1
-  pinMode(D5, INPUT_PULLUP); // 1->0->1
-  pinMode(D6, INPUT_PULLUP); // 1->0->1 
-  pinMode(D7, INPUT_PULLUP); // 1->0->1
-  pinMode(D8, OUTPUT); // 0->0
+  pinMode(D0, OUTPUT);        // L6
+  pinMode(D1, INPUT_PULLUP);        // L7
+  pinMode(D2, INPUT_PULLUP);        // L3
+  pinMode(D3, INPUT_PULLUP);  // B6
+  pinMode(D4, INPUT_PULLUP);  // B3
+  pinMode(D5, INPUT_PULLUP);  // B4
+  pinMode(D6, INPUT_PULLUP);  // B1
+  pinMode(D7, INPUT_PULLUP);  // B0
+  pinMode(D8, OUTPUT);        // L0
 
 }
 int count=0;
 void loop() {
-  digitalWrite(arrLed[0], HIGH);
-  digitalWrite(arrLed[1], HIGH);
-  digitalWrite(arrLed[2], HIGH);
-  digitalWrite(arrLed[8], HIGH);
-    int sensorVal = digitalRead(arrLed[6]);
-    Serial.print(++count);
-    Serial.print(" ");
-    Serial.println(sensorVal);
+  int sensorVal = digitalRead(arrLed[1]);
+  Serial.print(sensorVal);
 }

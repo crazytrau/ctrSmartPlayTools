@@ -1,10 +1,16 @@
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <SocketIOClient.h>
+#define codeEsp "0001"
 
-const int esp1[9] = {OUTPUT,OUTPUT,OUTPUT,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,OUTPUT};
-const int esp2[9] = {OUTPUT,OUTPUT,OUTPUT,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,OUTPUT,OUTPUT};
+const int esp1[9] = {OUTPUT,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,OUTPUT};
+const int realBut1[9] = {NULL, 0,1,3,4,6,7,NULL,NULL};
+
+const int esp2[9] = {OUTPUT,OUTPUT,OUTPUT,OUTPUT,OUTPUT,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,OUTPUT};
+const int realBut2[9] = {NULL, NULL,NULL,NULL,NULL,8,5,2,NULL};
+
 const int arrIO[] = {D0, D1, D2, D3, D4, D5, D6, D7, D8};
+
 //include thư viện để kiểm tra free RAM trên con esp8266
 extern "C" {
   #include "user_interface.h"
@@ -61,23 +67,28 @@ void setup()
         Serial.println("Da san sang nhan lenh");
     }
 }
- 
+int preBut = NULL;
 void loop()
 {
- 
+    for(int i=0;i<9;++i){
+      if (preBut != i && esp2[i] == INPUT_PULLUP && digitalRead(arrIO[i]) == 0){
+        Serial.println(realBut2[i]);
+        preBut = i;
+        String command = "button_in";
+        client.send(command, (String)realBut2[i]);
+      }
+    }
     //Khi bắt được bất kỳ sự kiện nào thì chúng ta có hai tham số:
     //  +RID: Tên sự kiện
     //  +RFull: Danh sách tham số được nén thành chuỗi JSON!
     if (client.monitor()) {
- 
- 
-        //in ra serial monitor
+
         Serial.print(RID);
         Serial.print(' ');
         Serial.println(Rfull);
-
+        
         if (RID == "esp"){
-          Serial.println(Rfull);
+          Serial.println(Rfull[0]);
         }
         
         //Kiểm tra xem còn dư bao nhiêu RAM, để debug

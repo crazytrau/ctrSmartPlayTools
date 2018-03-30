@@ -43,6 +43,10 @@ io.on('connection', function(socket){
     socket.broadcast.to(msg._id).emit('message', msg);
     io.sockets.emit('esp', msg);
   });
+
+  socket.on('button_in', function(msg){
+    console.log('message',msg);
+  });
 });
 
 /**
