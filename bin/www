@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('final:server');
 var http = require('http');
+let GAME = require('./game');
+var X1X1 = 6961; // type of equip just 3x3 grid
 
 /**
  * Get port from environment and store in Express.
@@ -28,22 +30,32 @@ var io = require('socket.io')(server);
 
 var Room = mongoose.model('room');
 
+// create a game
+tictactoe = new GAME.TICTACTOE();
+
 io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
-  socket.on('room', function(room) {
-      socket.join(room);
-      console.log('sever room: '+room);
+  socket.on('room', function(msg) {
+      socket.join(msg['room']);
+      //set value
+      player = new GAME.PLAYER(msg['playerId'],X1X1, [msg['playerId']]);
+      tictactoe.addPlayer(player);
+      //check can play 
+      tictactoe.checkCanPlay()
+      console.log('room: '+ msg['room']);
   });
-
-  socket.on('message', function(msg){
-    console.log('message',msg);
-    socket.broadcast.to(msg._id).emit('message', msg);
-    io.sockets.emit('esp', msg);
+  //tictactoe
+  socket.on('move', function(msg){
+    console.log('move',msg);
+    //send to device
+    tictactoe.move(tictactoe.getIdPlayer(msg['playerId']),msg['iLoc'], socket, msg);
   });
-
+  socket.on('reset',function(){
+    tictactoe.reset();
+  })
   socket.on('button_in', function(msg){
     console.log('message',msg);
   });

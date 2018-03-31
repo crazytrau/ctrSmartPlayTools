@@ -12,7 +12,7 @@
   <body>
     <h1>Hello, <%=username%>!</h1>
     <div class="container">
-
+      <h2>device id : <%=username%></h2>
       <div class="ctrGrid">
         <div class="row">
           <button class="rounded" style="width: 75px; height: 75px;" id="0"></button>
@@ -30,7 +30,9 @@
           <button class="rounded" style="width: 75px; height: 75px;" id="8"></button>
         </div>
       </div>
-
+      <div>
+        <p id="notice"></p>
+      </div>
     </div>
 
     <!-- Optional JavaScript -->
@@ -49,7 +51,7 @@
         var socket = io();
         socket.on('connect', function() {
          // Connected, let's sign-up for to receive messages for this room
-         socket.emit('room', idRoom);
+         socket.emit('room', {'room':idRoom, 'playerId':`<%=username%>`, 'type':6961, 'deviceId':`<%=username%>`});
          $(".rounded").attr("disabled", false);
         });
 
@@ -69,19 +71,27 @@
               ||  arr[2]==arr[5] && arr[5]==arr[8] && arr[5]!=-1
               ||  arr[0]==arr[4] && arr[4]==arr[8] && arr[4]!=-1
               ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=-1)
-              console.log('WIN')
-            socket.emit('message', {
-              loc:this.id,
-              _id:idRoom
+              $("#notice").html(`<button id="reset">You win - reset game</button>`);
+            socket.emit('move', {
+              playerId:`<%=username%>`,
+              iLoc:this.id,
+              roomId:idRoom
             });
           }
         });
 
-        socket.on('message', function(msg){
-          $(".rounded").attr("disabled", false);
-          $(`#${msg.loc}`).text('O')
-          arr[msg.loc]=0
+        $('#notice').one('click',function(e){
+          window.location.href = '/tictactoe/pvp';
+          socket.emit('reset');
         });
+
+        socket.on('move', function(msg){
+          console.log(msg);
+          $(".rounded").attr("disabled", false);
+          $(`#${msg.iLoc}`).text('O');
+          arr[msg.iLoc]=0;
+        });
+        
 
       });
     </script>

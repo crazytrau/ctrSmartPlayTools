@@ -1,3 +1,8 @@
+var app = require('../app');
+var http = require('http');
+var server = http.createServer(app);
+var io = require('socket.io')(server);
+
 var X1X1 = 6961; // type of equip just 3x3 grid
 
 var ARR_NULL_STATE = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
@@ -10,7 +15,7 @@ class PLAYER{
         this.playerId = playerId || 'player';
         // type of equip
         this.type = type || X1X1;
-        this.devices = devices || ['ctr_1'];
+        this.devices = devices || [];
     }
     getPlayerId(){
         return this.payerId;
@@ -30,14 +35,16 @@ class GAME {
         this.players = [];
         this.maxPlayer=1;
         this.minPlayer=1;
+        this.gameId = null;
     }
     // send to 1 equip
     send2AEquip(iPlayer,iDevice, iLed, state){
         var msg = { "deviceId":this.players[iPlayer].devices[iDevice], 
                     "iLed":iLed,
                     "state":state}; 
+        console.log(iPlayer, "send2AEquip");
         //update device
-        //io.sockets.emit('send2AEquip', JSON.stringify(msg));
+        io.sockets.emit('send2AEquip', JSON.stringify(msg));
     }
     sendAll2AEquip(iPlayer,iDevice, arrLed, arrState){
         var msg = { "deviceId":this.players[iPlayer].devices[iDevice], 
@@ -45,7 +52,7 @@ class GAME {
                     "arrState":arrState}; 
         console.log(iPlayer, "sendAll2AEquip");
         //update device
-        //io.sockets.emit('sendAll2AEquip', JSON.stringify(msg));
+        io.sockets.emit('sendAll2AEquip', JSON.stringify(msg));
     }
     addPlayer(player){
         if (player.type == this.type && this.players.length < this.maxPlayer){
@@ -75,14 +82,20 @@ class GAME {
     }
 }
 class TICTACTOE extends GAME {
-    constructor(maxPlayer) {
+    constructor(gameId) {
         super(X1X1);
         this.name = 'tictactoe class';
         this.grid = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
         this.maxPlayer = 2;
         this.minPlayer = 2;
-        this.turn = 0;
+        this.turn = -1;
+        this.gameId = gameId;
     }
+
+    reset(){
+        this.grid = [-1,-1,-1,-1,-1,-1,-1,-1,-1];
+        this.turn = -1;
+    } 
     
     checkWin(){
         var arr = this.grid;
@@ -101,20 +114,39 @@ class TICTACTOE extends GAME {
     }
 
     getIdPlayer(player){
-        for (var iPlayer=0;iPlayer<this.players.length;++iPlayer){
-            if (player.playerId == this.players[iPlayer].playerId){
-                return iPlayer;
+        if (player.playerId){ // is obj
+            for (var iPlayer=0;iPlayer<this.players.length;++iPlayer){
+                if (player.playerId == this.players[iPlayer].playerId){
+                    return iPlayer;
+                }
             }
+            return -1;
         }
-        return -1;
+        else{   // is playerId
+            for (var iPlayer=0;iPlayer<this.players.length;++iPlayer){
+                if (player == this.players[iPlayer].playerId){
+                    return iPlayer;
+                }
+            }
+            return -1;
+        }
     }
     
-    move(iPlayer, iLoc){
+    move(iPlayer, iLoc, socket, msg){
+        if (this.turn == -1){
+            this.turn = iPlayer;
+        }
         if (iPlayer == this.turn){
             this.grid[iLoc] = iPlayer
             // send to devices
             this.send2AEquip(iPlayer, this.players[iPlayer].devices[0],iLoc,TURN_ON);
             this.turn = ++this.turn>1?0:1;
+            console.log('tictactoe.move '+iPlayer+','+iLoc);
+            //send to web client
+            socket.broadcast.to(msg.roomId).emit('move', msg);
+        }
+        else{
+            console.log('wrong turn')
         }
     }
 }
@@ -147,3 +179,8 @@ class TICTACTOE extends GAME {
 // console.log('win ? ',tictactoe.checkWin())
 
 // console.log(tictactoe.grid);
+
+module.exports = {
+    PLAYER : PLAYER,
+    TICTACTOE : TICTACTOE
+}

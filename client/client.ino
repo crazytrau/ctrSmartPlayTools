@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <SocketIOClient.h>
-#define codeEsp "0001"
+#define codeEsp "user1"
 
 const int esp1[9] = {OUTPUT,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,INPUT_PULLUP,OUTPUT};
 const int realBut1[9] = {NULL, 0,1,3,4,6,7,NULL,NULL};
