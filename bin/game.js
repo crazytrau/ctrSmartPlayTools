@@ -89,7 +89,7 @@ class TICTACTOE extends GAME {
         this.maxPlayer = 2;
         this.minPlayer = 2;
         this.turn = -1;
-        this.gameId = gameId;
+        this.gameId = gameId || "asdasd";
     }
 
     reset(){
@@ -106,8 +106,12 @@ class TICTACTOE extends GAME {
             ||  arr[1]==arr[4] && arr[4]==arr[7] && arr[4]!=-1
             ||  arr[2]==arr[5] && arr[5]==arr[8] && arr[5]!=-1
             ||  arr[0]==arr[4] && arr[4]==arr[8] && arr[4]!=-1
-            ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=-1)
-            return true;
+            ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=-1){
+                return true;
+                //send to web client
+                console.log(checkwin, this.gameId)
+                socket.broadcast.to(this.gameId).emit('winner', this.players[this.turn].playerId);
+            }
         else{
             return false;
         }
@@ -141,9 +145,10 @@ class TICTACTOE extends GAME {
             // send to devices
             this.send2AEquip(iPlayer, this.players[iPlayer].devices[0],iLoc,TURN_ON);
             this.turn = ++this.turn>1?0:1;
-            console.log('tictactoe.move '+iPlayer+','+iLoc);
             //send to web client
             socket.broadcast.to(msg.roomId).emit('move', msg);
+            this.checkWin();
+            console.log(this.grid)
         }
         else{
             console.log('wrong turn')

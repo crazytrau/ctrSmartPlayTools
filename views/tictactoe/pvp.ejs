@@ -86,12 +86,25 @@
         });
 
         socket.on('move', function(msg){
-          console.log(msg);
-          $(".rounded").attr("disabled", false);
-          $(`#${msg.iLoc}`).text('O');
-          arr[msg.iLoc]=0;
+          if(msg.playerId != "<%=username%>"){
+            console.log(msg);
+            $(".rounded").attr("disabled", false);
+            $(`#${msg.iLoc}`).text('O');
+            arr[msg.iLoc]=0;
+          }
+          else{
+            $(`#${msg.iLoc}`).text('X');
+            arr[msg.iLoc]=1;
+          }
         });
         
+        socket.on('winner', function(msg){
+          if (smg == '<%=username%>'){
+            $("#notice").html(`<button id="reset">You win - reset game</button>`);
+          }else{
+            $("#notice").html(`<button>You lost - wait for winner</button>`);
+          }
+        });
 
       });
     </script>

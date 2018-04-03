@@ -55,6 +55,7 @@ io.on('connection', function(socket){
   });
   socket.on('reset',function(){
     tictactoe.reset();
+    // send to all client
   })
   socket.on('button_in', function(msg){
     console.log('message',msg);
