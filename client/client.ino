@@ -71,11 +71,11 @@ int preBut = NULL;
 void loop()
 {
     for(int i=0;i<9;++i){
-      if (preBut != i && esp2[i] == INPUT_PULLUP && digitalRead(arrIO[i]) == 0){
-        Serial.println(realBut2[i]);
+      if (preBut != i && esp1[i] == INPUT_PULLUP && digitalRead(arrIO[i]) == 0){
+        Serial.println(realBut1[i]);
         preBut = i;
         String command = "button_in";
-        client.send(command, (String)realBut2[i]);
+        client.send(command, (String)realBut1[i]);
       }
     }
     //Khi bắt được bất kỳ sự kiện nào thì chúng ta có hai tham số:
