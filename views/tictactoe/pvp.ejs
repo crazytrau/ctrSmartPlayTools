@@ -99,7 +99,8 @@
         });
         
         socket.on('winner', function(msg){
-          if (smg == '<%=username%>'){
+          console.log(msg)
+          if (msg == '<%=username%>'){
             $("#notice").html(`<button id="reset">You win - reset game</button>`);
           }else{
             $("#notice").html(`<button>You lost - wait for winner</button>`);

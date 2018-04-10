@@ -97,7 +97,7 @@ class TICTACTOE extends GAME {
         this.turn = -1;
     } 
     
-    checkWin(){
+    checkWin(socket){
         var arr = this.grid;
         if (  arr[0]==arr[1] && arr[1]==arr[2] && arr[1]!=-1
             || arr[3]==arr[4] && arr[4]==arr[5] && arr[4]!=-1
@@ -107,10 +107,10 @@ class TICTACTOE extends GAME {
             ||  arr[2]==arr[5] && arr[5]==arr[8] && arr[5]!=-1
             ||  arr[0]==arr[4] && arr[4]==arr[8] && arr[4]!=-1
             ||  arr[2]==arr[4] && arr[4]==arr[6] && arr[4]!=-1){
-                return true;
                 //send to web client
-                console.log(checkwin, this.gameId)
+                console.log("checkwin", this.players[this.turn].playerId)
                 socket.broadcast.to(this.gameId).emit('winner', this.players[this.turn].playerId);
+                return true;
             }
         else{
             return false;
@@ -143,11 +143,31 @@ class TICTACTOE extends GAME {
         if (iPlayer == this.turn){
             this.grid[iLoc] = iPlayer
             // send to devices
-            this.send2AEquip(iPlayer, this.players[iPlayer].devices[0],iLoc,TURN_ON);
-            this.turn = ++this.turn>1?0:1;
+            //this.send2AEquip(iPlayer, this.players[iPlayer].devices[0],iLoc,TURN_ON);
             //send to web client
             socket.broadcast.to(msg.roomId).emit('move', msg);
-            this.checkWin();
+            this.checkWin(socket);
+            console.log(this.grid)
+            this.turn = ++this.turn>1?0:1;
+        }
+        else{
+            console.log('wrong turn')
+        }
+    }
+
+    moveDevices(iLoc, socket){
+    var USER1 = 1;
+    if (this.turn == -1){
+            this.turn = USER1;
+        }
+        if (USER1 == this.turn){
+            this.grid[iLoc] = USER1
+            // send to devices
+            //this.send2AEquip(USER1, this.players[USER1].devices[0],iLoc,TURN_ON);
+            this.turn = ++this.turn>1?0:1;
+            //send to web client
+            socket.broadcast.to("asdasd").emit('move', {"playerId": "user1", "iLoc": iLoc, "roomId": "asdasd"});
+            this.checkWin(socket);
             console.log(this.grid)
         }
         else{

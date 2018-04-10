@@ -59,7 +59,7 @@ io.on('connection', function(socket){
   })
   socket.on('button_in', function(msg){
     console.log('message',msg);
-    //tictactoe.move(tictactoe.getIdPlayer(msg['playerId']),msg['iLoc'], socket, msg);
+    tictactoe.moveDevices(msg, socket);
   });
 });
 
