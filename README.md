@@ -1,5 +1,5 @@
 # ctrSmartPlayTools
-
+https://youtu.be/TYt0LtFghuQ 
 # setup 
 install Raspbian OS
 1. Raspbian OS - OS runing on hardware device
